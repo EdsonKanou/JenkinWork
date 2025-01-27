@@ -12,8 +12,8 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    // Construction de l'image Docker
-                    docker.build('sum-app', SUM_DIR)
+                    // Construction de l'image Docker en utilisant la commande shell
+                    sh 'docker build -t sum-app $SUM_DIR'
                 }
             }
         }
@@ -21,7 +21,6 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
-                    // Exécution du conteneur Docker et stockage de l'ID du conteneur
                     CONTAINER_ID = sh(script: "docker run -d sum-app sh -c 'tail -f /dev/null'", returnStdout: true).trim()
                 }
             }
@@ -30,7 +29,6 @@ pipeline {
         stage('Test sum.py') {
             steps {
                 script {
-                    // Lire les variables de test depuis le fichier
                     def testVariables = readFile(TEST_FILE_PATH).split("\n")
                     for (def line : testVariables) {
                         def args = line.split(" ")
@@ -44,7 +42,6 @@ pipeline {
     
     post {
         always {
-            // Arrêter et supprimer le conteneur Docker
             sh "docker stop ${CONTAINER_ID}"
             sh "docker rm ${CONTAINER_ID}"
         }
