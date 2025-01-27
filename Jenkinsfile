@@ -13,7 +13,7 @@ pipeline {
             steps {
                 script {
                     // Construction de l'image Docker en utilisant la commande shell
-                    sh 'docker build -t sum-app $SUM_DIR'
+                    bat 'docker build -t sum-app .'
                 }
             }
         }
