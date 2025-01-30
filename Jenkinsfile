@@ -19,12 +19,10 @@ pipeline {
             steps {
                 echo 'Running the Docker container...'
                 script {
-                    // Utiliser powershell pour capturer proprement l'ID du conteneur
                     def containerId = bat(
                         script: '@docker run -dit python-sum',
                         returnStdout: true
                     ).trim()
-                    // Stocker l'ID pour une utilisation ultérieure
                     env.CONTAINER_ID = containerId
                     echo "Container ID: ${env.CONTAINER_ID}"
                 }
@@ -35,7 +33,6 @@ pipeline {
             steps {
                 echo 'Running tests inside the container...'
                 script {
-                    // Utiliser le containerId capturé pour la commande docker cp
                     bat """
                         docker cp ${env.SUM_PY_PATH} ${env.CONTAINER_ID}:/app/sum.py
                     """
@@ -52,11 +49,12 @@ pipeline {
                                 set RESULT=%%R
                             )
                             
-                            if !RESULT! NEQ !EXPECTED! (
+                            set "EXPECTED_FLOAT=!EXPECTED!.0"
+                            if "!RESULT!" == "!EXPECTED_FLOAT!" (
+                                echo Test passed for inputs !NUM1!, !NUM2!
+                            ) else (
                                 echo Test failed for inputs !NUM1!, !NUM2!: Expected !EXPECTED!, but got !RESULT!
                                 exit /b 1
-                            ) else (
-                                echo Test passed for inputs !NUM1!, !NUM2!
                             )
                         )
                     """
