@@ -5,7 +5,7 @@ pipeline {
         SUM_PY_PATH = './sum.py'
         DIR_PATH = '.'
         TEST_FILE_PATH = './test_variables.txt'
-        DOCKERHUB_REPO = 'your-dockerhub-username/your-repo-name'
+        DOCKERHUB_REPO = 'edsonkanou/jenkins'
     }
     
     stages {
