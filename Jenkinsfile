@@ -2,8 +2,9 @@ pipeline {
     agent any
     
     environment {
+        
         //f18834ba10ff8d993bdfb104de298dab7a93d503b1adf332b9eb8440b2d82218
-        CONTAINER_ID = 'cf05fa92ef90394d9ee33020f8a33ac6ae556177f11e790fb1cfdbada1c2aa7a' // ID du conteneur sera stocké ici 
+        CONTAINER_ID = 'fe535054c007ebd01d02d7b5498f2689d2ab43b9c05682cad3cb96f5ce7f447f' // ID du conteneur sera stocké ici 
         SUM_PY_PATH = './sum.py' // Chemin vers le script sum.py sur la machine locale
         DIR_PATH = '.' // Chemin vers le répertoire contenant le Dockerfile
     }
