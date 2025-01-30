@@ -5,6 +5,7 @@ pipeline {
         SUM_PY_PATH = './sum.py'
         DIR_PATH = '.'
         TEST_FILE_PATH = './test_variables.txt'
+        DOCKERHUB_REPO = 'your-dockerhub-username/your-repo-name'
     }
     
     stages {
@@ -53,14 +54,30 @@ pipeline {
             }
         }
         
-        stage('Cleanup') {
+        stage('Deploy') {
             steps {
-                echo 'Stopping and removing the container...'
-                bat '''
-                    docker stop %CONTAINER_ID%
-                    docker rm %CONTAINER_ID%
-                '''
+                echo 'Deploying Docker image to DockerHub...'
+                script {
+                    // Se connecter à DockerHub
+                    bat 'docker login -u your-dockerhub-username -p your-dockerhub-password'
+                    
+                    // Taguer l'image
+                    bat "docker tag python-sum ${DOCKERHUB_REPO}"
+                    
+                    // Pousser l'image vers DockerHub
+                    bat "docker push ${DOCKERHUB_REPO}"
+                }
             }
+        }
+    }
+    
+    post {
+        always {
+            echo 'Stopping and removing the container...'
+            bat '''
+                docker stop %CONTAINER_ID%
+                docker rm %CONTAINER_ID%
+            '''
         }
     }
 }
