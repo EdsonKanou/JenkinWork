@@ -59,7 +59,7 @@ pipeline {
                 echo 'Deploying Docker image to DockerHub...'
                 script {
                     // Se connecter à DockerHub
-                    bat 'docker login -u your-dockerhub-username -p your-dockerhub-password'
+                    bat 'docker login -u edsonkanou -p Zabaleta237'
                     
                     // Taguer l'image
                     bat "docker tag python-sum ${DOCKERHUB_REPO}"
