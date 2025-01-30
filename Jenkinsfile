@@ -2,11 +2,9 @@ pipeline {
     agent any
     
     environment {
-        
-        //f18834ba10ff8d993bdfb104de298dab7a93d503b1adf332b9eb8440b2d82218
-        CONTAINER_ID = 'fe535054c007ebd01d02d7b5498f2689d2ab43b9c05682cad3cb96f5ce7f447f' // ID du conteneur sera stocké ici 
-        SUM_PY_PATH = './sum.py' // Chemin vers le script sum.py sur la machine locale
-        DIR_PATH = '.' // Chemin vers le répertoire contenant le Dockerfile
+        SUM_PY_PATH = './sum.py'
+        DIR_PATH = '.'
+        TEST_FILE_PATH = './test_variables.txt'
     }
     
     stages {
@@ -26,6 +24,42 @@ pipeline {
                     env.CONTAINER_ID = lines[-1].trim()
                     echo "Container ID: ${env.CONTAINER_ID}"
                 }
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                echo 'Running tests inside the container...'
+                script {
+                    def testLines = readFile(TEST_FILE_PATH).split('\n')
+                    for (line in testLines) {
+                        def vars = line.split(' ')
+                        def arg1 = vars[0]
+                        def arg2 = vars[1]
+                        def expectedSum = vars[2].toFloat()
+                        
+                        // Exécuter sum.py dans le conteneur avec les arguments
+                        def output = bat(script: "docker exec ${env.CONTAINER_ID} python /app/sum.py ${arg1} ${arg2}", returnStdout: true)
+                        def result = output.split('\n')[-1].trim().toFloat()
+                        
+                        // Vérifier si le résultat correspond à la valeur attendue
+                        if (result == expectedSum) {
+                            echo "Test passed for inputs ${arg1}, ${arg2}: Expected and got ${result}"
+                        } else {
+                            error "Test failed for inputs ${arg1}, ${arg2}: Expected ${expectedSum}, but got ${result}"
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Cleanup') {
+            steps {
+                echo 'Stopping and removing the container...'
+                bat '''
+                    docker stop %CONTAINER_ID%
+                    docker rm %CONTAINER_ID%
+                '''
             }
         }
     }
